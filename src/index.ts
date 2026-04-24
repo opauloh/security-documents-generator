@@ -32,6 +32,7 @@ import { promptForFileSelection } from './commands/utils/cli_utils';
 import { UserGenerator } from './commands/privileged_access_detection_ml/event_generator';
 import { generatePrivilegedUserMonitoringData } from './commands/privileged_user_monitoring/privileged_user_monitoring';
 import { generateCSVFile } from './commands/privileged_user_monitoring/generate_csv_file';
+import { generateOrgData, OrgSize } from './commands/org_data';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -380,6 +381,28 @@ program
       )
     )
       await generateCSVFile({ users });
+  });
+
+program
+  .command('org-data')
+  .description('Generate comprehensive organizational data for testing')
+  .option(
+    '--size <size>',
+    'Organization size: small | medium | enterprise',
+    'enterprise',
+  )
+  .option('--no-integrations', 'Skip installing security integrations')
+  .option('--no-alerts', 'Skip generating detection rules and alerts')
+  .option('--seed <seed>', 'Seed for stable random data', parseIntBase10)
+  .option('--space <space>', 'Kibana space to use')
+  .action(async (options) => {
+    await generateOrgData({
+      size: options.size as OrgSize,
+      integrations: options.integrations,
+      withAlerts: options.alerts,
+      seed: options.seed,
+      space: options.space,
+    });
   });
 
 program.parse();
